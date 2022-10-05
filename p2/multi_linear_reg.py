@@ -40,60 +40,80 @@ def compute_cost(X, y, w, b):
     """
     cost = 0
 
-    for i in range(X.shape[0]):   
-      for j in range(X.shape[1]):    
-        cost += ((w[j]*X[i][j] + b - y[i])**2)
+    for i in range(X.shape[0]):     
+        cost += ((np.dot(w, X[i]) + b - y[i])**2)
 
     cost = cost/(2*X.shape[0])
 
     return cost
 
 
-# def compute_gradient(X, y, w, b):
-#     """
-#     Computes the gradient for linear regression 
-#     Args:
-#       X : (ndarray Shape (m,n)) matrix of examples 
-#       y : (ndarray Shape (m,))  target value of each example
-#       w : (ndarray Shape (n,))  parameters of the model      
-#       b : (scalar)              parameter of the model      
-#     Returns
-#       dj_dw : (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters w. 
-#       dj_db : (scalar)             The gradient of the cost w.r.t. the parameter b. 
-#     """
+def compute_gradient(X, y, w, b):
+    """
+    Computes the gradient for linear regression 
+    Args:
+      X : (ndarray Shape (m,n)) matrix of examples 
+      y : (ndarray Shape (m,))  target value of each example
+      w : (ndarray Shape (n,))  parameters of the model      
+      b : (scalar)              parameter of the model      
+    Returns
+      dj_dw : (ndarray Shape (n,)) The gradient of the cost w.r.t. the parameters w. 
+      dj_db : (scalar)             The gradient of the cost w.r.t. the parameter b. 
+    """
+    m = X.shape[0]
 
-#     return dj_db, dj_dw
+    dj_db = 0
+    dj_dw = np.zeros(X.shape[1])
+
+    for i in range(m):
+      dj_db += (np.dot(w, X[i]) + b - y[i])
+      dj_dw += ((np.dot(w, X[i]) + b - y[i]))*X[i]
+
+    
+
+    return dj_db/m, dj_dw/m
 
 
-# def gradient_descent(X, y, w_in, b_in, cost_function,
-#                      gradient_function, alpha, num_iters):
-#     """
-#     Performs batch gradient descent to learn theta. Updates theta by taking 
-#     num_iters gradient steps with learning rate alpha
+def gradient_descent(X, y, w_in, b_in, cost_function,
+                     gradient_function, alpha, num_iters):
+    """
+    Performs batch gradient descent to learn theta. Updates theta by taking 
+    num_iters gradient steps with learning rate alpha
 
-#     Args:
-#       X : (array_like Shape (m,n)    matrix of examples 
-#       y : (array_like Shape (m,))    target value of each example
-#       w_in : (array_like Shape (n,)) Initial values of parameters of the model
-#       b_in : (scalar)                Initial value of parameter of the model
-#       cost_function: function to compute cost
-#       gradient_function: function to compute the gradient
-#       alpha : (float) Learning rate
-#       num_iters : (int) number of iterations to run gradient descent
-#     Returns
-#       w : (array_like Shape (n,)) Updated values of parameters of the model
-#           after running gradient descent
-#       b : (scalar)                Updated value of parameter of the model 
-#           after running gradient descent
-#       J_history : (ndarray): Shape (num_iters,) J at each iteration,
-#           primarily for graphing later
-#     """
+    Args:
+      X : (array_like Shape (m,n)    matrix of examples 
+      y : (array_like Shape (m,))    target value of each example
+      w_in : (array_like Shape (n,)) Initial values of parameters of the model
+      b_in : (scalar)                Initial value of parameter of the model
+      cost_function: function to compute cost
+      gradient_function: function to compute the gradient
+      alpha : (float) Learning rate
+      num_iters : (int) number of iterations to run gradient descent
+    Returns
+      w : (array_like Shape (n,)) Updated values of parameters of the model
+          after running gradient descent
+      b : (scalar)                Updated value of parameter of the model 
+          after running gradient descent
+      J_history : (ndarray): Shape (num_iters,) J at each iteration,
+          primarily for graphing later
+    """
+    w = w_in
+    b =  b_in
+    J_history = []
 
-#     return w, b, J_history
+    for n in range(num_iters):
+      for i in range(X.shape[0]):
+          w = np.subtract(w, alpha*gradient_function(X, y, w, b)[1])
+          b = b - alpha*gradient_function(X, y, w, b)[0]
+      J_history.append(cost_function)
+
+    return w, b, J_history
 
 def main():
   PublicTest.compute_cost_test(compute_cost)
+  PublicTest.compute_gradient_test(compute_gradient)
 
+  
   # data = np.loadtxt("./data/houses.txt", delimiter=',', skiprows=1)
   # X_train = data[:, :4]
   # y_train = data[:, 4]

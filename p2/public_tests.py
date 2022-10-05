@@ -36,3 +36,19 @@ def compute_gradient_test(target):
         dj_dw, target_dj_dw, rtol=1e-02), f"Case 1: dj_dw is wrong: {dj_dw} != {target_dj_dw}"
 
     print("\033[92mAll tests passed!")
+
+def compute_gradient_descent_test(target):
+    X_train, y_train, w_init, b_init = test_data()
+
+    dj_db, dj_dw = target(X_train, y_train, w_init, b_init)
+    #assert dj_dw.shape == w_init.shape, f"Wrong shape for dj_dw. {dj_dw} != {w_init.shape}"
+
+    target_dj_db = -1.6739251122999121e-06
+    target_dj_dw = [-2.73e-3, - 6.27e-6, - 2.22e-6, - 6.92e-5]
+
+    assert np.isclose(dj_db, target_dj_db,
+                      rtol=1e-4), f"Case 1: dj_db is wrong: {dj_db} != {target_dj_db}"
+    assert np.allclose(
+        dj_dw, target_dj_dw, rtol=1e-02), f"Case 1: dj_dw is wrong: {dj_dw} != {target_dj_dw}"
+
+    print("\033[92mAll tests passed!")

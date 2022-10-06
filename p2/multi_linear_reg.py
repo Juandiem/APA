@@ -32,11 +32,11 @@ def zscore_normalize_features(X):
       sigma (ndarray (n,))  : standard deviation of each feature
     """
     X_norm = np.zeros(X.shape)
+    mu = np.mean(X, axis=0)
+    sigma = np.std(X, axis=0)
 
-    for j in range(X.shape[1]):
-      mu = np.mean(X, axis=j)
-      sigma = np.std(X, axis=j)
-      X_norm[:, j] = (X - mu) / (sigma)
+    for i in range(X.shape[0]):
+      X_norm[i] = (X[i] - mu) / (sigma)
 
 
     return (X_norm, mu, sigma)
@@ -117,9 +117,9 @@ def gradient_descent(X, y, w_in, b_in, cost_function,
     J_history = []
 
     for n in range(num_iters):
-      for i in range(X.shape[0]):
-          w = np.subtract(w, alpha*gradient_function(X, y, w, b)[1])
-          b = b - alpha*gradient_function(X, y, w, b)[0]
+      w_aux, b_aux = gradient_function(X, y, w, b)
+      w -= alpha*w_aux
+      b -= alpha*b_aux
       J_history.append(cost_function(X, y, w, b))
 
     return w, b, J_history
@@ -130,9 +130,11 @@ def main():
   PublicTest.compute_cost_test(compute_cost)
   PublicTest.compute_gradient_test(compute_gradient)
   x, mu, sigma = zscore_normalize_features(X)
-
-  w, b, J_history = gradient_descent(x, y,[0, 0, 0, 0], 0, compute_cost,compute_gradient, 0.001, 1500)
-  x = [1200,3,1,40]
+  b_in = 785.1811367994083
+  w_in = np.array([0.39133535,18.75376941,-53.36032453,-26.42131618])
+  w, b, J_history = gradient_descent(x, y,w_in, b_in, compute_cost,compute_gradient, 0.001, 1500)
+  x = np.array([1200,3,1,40])
+  x= (x-mu)/sigma
   print(np.dot(w,x) + b)
 
 main()

@@ -4,6 +4,21 @@ import math
 import matplotlib.pyplot as plt
 import public_tests as PublicTest
 
+def visualize_data():
+
+  data = np.loadtxt("./data/houses.txt", delimiter=',', skiprows=1)
+  X_train = data[:, :4]
+  y_train = data[:, 4]
+
+  X_features = ['size(sqft)', 'bedrooms', 'floors', 'age']
+  fig, ax = plt.subplots(1, 4, figsize=(25, 5), sharey=True)
+  for i in range(len(ax)):
+    ax[i].scatter(X_train[:, i], y_train)
+    ax[i].set_xlabel(X_features[i])
+    ax[0].set_ylabel("Price (1000's)")
+
+  return ax, fig
+
 def zscore_normalize_features(X):
     """
     computes  X, zcore normalized by column
@@ -105,27 +120,20 @@ def gradient_descent(X, y, w_in, b_in, cost_function,
       for i in range(X.shape[0]):
           w = np.subtract(w, alpha*gradient_function(X, y, w, b)[1])
           b = b - alpha*gradient_function(X, y, w, b)[0]
-      J_history.append(cost_function)
+      J_history.append(cost_function(X, y, w, b))
 
     return w, b, J_history
 
 def main():
+  X, y = visualize_data()
+
   PublicTest.compute_cost_test(compute_cost)
   PublicTest.compute_gradient_test(compute_gradient)
+  x, mu, sigma = zscore_normalize_features(X)
 
-  
-  # data = np.loadtxt("./data/houses.txt", delimiter=',', skiprows=1)
-  # X_train = data[:, :4]
-  # y_train = data[:, 4]
-
-  # X_features = ['size(sqft)', 'bedrooms', 'floors', 'age']
-  # fig, ax = plt.subplots(1, 4, figsize=(25, 5), sharey=True)
-  # for i in range(len(ax)):
-  #   ax[i].scatter(X_train[:, i], y_train)
-  #   ax[i].set_xlabel(X_features[i])
-  # ax[0].set_ylabel("Price (1000's)")
-
-  # plt.show()
+  w, b, J_history = gradient_descent(x, y,[0, 0, 0, 0], 0, compute_cost,compute_gradient, 0.001, 1500)
+  x = [1200,3,1,40]
+  print(np.dot(w,x) + b)
 
 main()
 

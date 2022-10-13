@@ -39,7 +39,7 @@ def zscore_normalize_features(X):
       X_norm[i] = (X[i] - mu) / (sigma)
 
 
-    return (X_norm, mu, sigma)
+    return X_norm, mu, sigma
 
 
 def compute_cost(X, y, w, b):

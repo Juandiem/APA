@@ -1,9 +1,23 @@
+from json import load
+from tkinter.filedialog import LoadFileDialog
 import numpy as np
+import scipy.io as sio
+import utils  as utils
+import public_tests as PublicTest
+import logistic_reg as log_reg
 
-
-#########################################################################
+######################################################################### 
 # one-vs-all
 #
+def loadData():
+    data = sio.loadmat('data/ex3data1.mat', squeeze_me=True)
+    X = data['X']
+    y = data['y']
+    rand_indices = np.random.choice(X.shape[0], 100, replace=False)
+    utils.displayData(X[rand_indices, :])
+
+    return X, y
+
 def oneVsAll(X, y, n_labels, lambda_):
     """
      Trains n_labels logistic regression classifiers and returns
@@ -32,6 +46,16 @@ def oneVsAll(X, y, n_labels, lambda_):
          This is a matrix of shape (K x n+1) where K is number of classes
          (ie. `n_labels`) and n is number of features without the bias.
      """
+    all_theta = (n_labels, X.shape[1]+1)
+
+    for i in range(n_labels):
+        b = 0
+        w = np.zeros(len(X[0]))
+        y_aux = np.where(y == i, 1, 0)
+        w_aux, b_aux, J_history = log_reg.gradient_descent(X, y_aux, w, b, log_reg.compute_cost_reg,log_reg.compute_gradient_reg, 0.001, 5000, lambda_)
+        all_theta[i, 0] = b_aux
+        all_theta[i, 1:] = w_aux
+
 
     return all_theta
 
@@ -63,6 +87,11 @@ def predictOneVsAll(all_theta, X):
         The predictions for each data point in X. This is a vector of shape (m, ).
     """
 
+    p = np.zeros(X.shape[0])
+
+    p = np.argmax(log_reg.sigmoid(all_theta), axis = 0) #SUUUUS
+
+
     return p
 
 
@@ -93,4 +122,17 @@ def predict(theta1, theta2, X):
         It has a length equal to the number of examples.
     """
 
-    return p
+    return 0#p
+
+def main():
+    PublicTest.compute_cost_reg_test(log_reg.compute_cost_reg)
+    PublicTest.compute_gradient_reg_test(log_reg.compute_gradient_reg)
+
+    X,y = loadData()
+    all_theta = oneVsAll(X, y, 10, 1)
+    pred = predictOneVsAll(all_theta, X)
+    
+    for i in range(pred.shape[0]):
+        
+
+main()

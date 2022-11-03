@@ -3,6 +3,7 @@ import copy
 import math
 import public_tests as PublicTest
 import utils as utils
+import scipy.io as loadmat
 
 def plot_data(X, y, pos_label="y=1", neg_label="y=0"):
   positive = y == 1
@@ -67,10 +68,13 @@ def compute_cost(X, y, w, b, lambda_=None):
 
   total_cost = 0
 
-  for i in range(X.shape[0]):     
-      total_cost += -y[i]*np.log(sigmoid(np.dot(w, X[i]) + b)) - (1-y[i])*np.log(1 - sigmoid(np.dot(w, X[i]) + b))
+  f_dw = sigmoid(X @ w +b)
 
-  total_cost /= X.shape[0]
+  a = np.dot(-y,np.log(f_dw))
+  b = np.dot((1-y),np.log(1-f_dw))
+  sum = np.sum(a, b)
+
+  total_cost = sum/X.shape[0]
 
   return total_cost
 
@@ -95,9 +99,9 @@ def compute_gradient(X, y, w, b, lambda_=None):
   dj_dw = np.zeros(X.shape[1])
   dj_db = 0
 
-  for i in range(m):
-    dj_dw += (sigmoid(np.dot(w, X[i]) + b) - y[i])*X[i]
-    dj_db += sigmoid(np.dot(w, X[i]) + b) - y[i]
+  f_dw = sigmoid(X @ w +b)
+  dj_dw = (f_dw - y) @ X
+  dj_db = np.sum(f_dw, y)
 
   return dj_db/m, dj_dw/m
 
@@ -225,7 +229,46 @@ def predict(X, w, b):
 
   return p
 
+#Practica 4 ahora mas que nunca
+def oneVsAll(X, y, n_labels, lambda_):
+  """
+  Trains n_labels logistic regression classifiers and returns 
+  each of these classifiers in a matrix all_theta, where the i-th 
+  row of all_theta corresponds to the classifier for label i. 
+  
+  Parameters 
+  ---------
+  X : array_like 
+  The input dataset of shape (m x n). m is the number of 
+  data points, and n is the number of features. 
+  
+  y : array_like 
+  The data labels. A vector of shape (m, ). 
+  
+  n_labels : int 
+  Number of possible labels. 
+  
+  lambda_ : float 
+  The logistic regularization parameter.
+  Returns 
+  ------
+  all_theta:array_like 
+  Thetrainedparametersforlogisticregressionforeachclass. 
+  Thisisamatrixofshape(Kxn+1)whereKisnumberofclasses 
+  (ie.`n_labels`)andnisnumberoffeatureswithoutthebias. 
+  """
+
+  all_theta = np.zeros(n_labels,X.shape[1])
+
+  for i in range(n_labels):
+    
+   
+  return all_theta
+
+
+
 def gradient_descent_test():
+  data = loadmat
   data = np.loadtxt("./data/ex2data2.txt", delimiter=',', skiprows=1)
   X = data[:, :2]
   y = data[:, 2]
@@ -260,3 +303,22 @@ def gradient_reg_test():
   utils.plot_data(X, y)
   utils.plot_decision_boundary(w,b,X,y)
   
+
+def main():
+#   data = loadmat('data/ex3data1.mat', squeeze_me=True)
+#   X = data['X']
+#   y = data['y']
+
+#   rand_indices = np.random.choice(X.shape[0], 100, replace=False) 
+#   utils.displayData(X[rand_indices, :])
+
+  PublicTest.sigmoid_test(sigmoid)
+  PublicTest.compute_cost_test(compute_cost)
+  PublicTest.compute_gradient_test(compute_gradient)
+  #gradient_descent_test()
+
+  PublicTest.predict_test(predict)
+  PublicTest.compute_cost_reg_test(compute_cost_reg)
+  PublicTest.compute_gradient_reg_test(compute_gradient_reg)
+  gradient_reg_test()
+
